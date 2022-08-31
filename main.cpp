@@ -2,11 +2,33 @@
 #include <string>
 #include <algorithm>
 #include <vector>
-
 using namespace std;
+#define n 10
 
+
+string dezero(string num){
+    long int i;
+    for(i = 0; i < num.length(); i++){
+        if(num.at(i) > 48) break;
+    }
+    if(i ==num.length()) return "0";
+    num.erase(0,i);
+    return num;
+}
+
+int judge(string num1, string num2){
+    if(num1.length() > num2.length()) return 1;
+    if(num1.length() < num2.length()) return -1;
+    long int i;
+    for(i = 0; i < num1.length(); i++){
+        if(num1.at(i) > num2.at(i)) return 1;
+        if(num1.at(i) < num2.at(i)) return -1;
+    }
+    return 0;
+}
 class Solution {
 public:
+
     string multiply(string num1, string num2){
         int s1 = num1.size();
         int s2 = num2.size();
@@ -28,15 +50,15 @@ public:
         reverse(v.begin(), v.end());
         int u = 0;
         while(v[u] == 0) u++;
-        string res = "";
+        string result = "";
         for(int i = u; i < v.size(); i++)
-            res+=v[i]+'0';
-        return res;
+            result+=v[i]+'0';
+        return result;
     }
 
-    string plus(string a, string b) {
-        string str1 = a;
-        string str2 = b;
+    string addtion(string num1, string num2){
+        string str1 = num1;
+        string str2 = num2;
         int len = max(str1.size(), str2.size());
         string result;
         reverse(str1.begin(), str1.end());
@@ -55,63 +77,113 @@ public:
     }
 
     string subtraction(string num1, string num2){
-        string s1 = num1;
-        string s2 = num2;
-        if(s1==s2) {
+        num1 = dezero(num1);
+        num2 = dezero(num2);
+        long int i, j = 0;
+        string c = "0";
+        string c1, c2;
+        string d = "-";
+        if(judge(num1, num2) == 0) return c;
+        if(judge(num1, num2) == 1){
+            c1 = num1;
+            c2 = num2;
+        }
+        if(judge(num1, num2) == -1){
+            c1 = num2;
+            c2 = num1;
+            j = -1;
+        }
+        reverse(c1.begin(), c1.end());
+        reverse(c2.begin(), c2.end());
+        for(i = 0; i < c2.length(); i++){
+            if(c2.at(i) >= 48 && c2.at(i) <= 57) c2.at(i)-=48;
+            if(c2.at(i) >= 97 && c2.at(i) <= 122) c2.at(i)-=87;
+        }
+        for(i = 0; i < c1.length(); i++){
+            if(c1.at(i)>=48&&c1.at(i)<=57) c1.at(i)-=48;
+            if(c1.at(i)>=97&&c1.at(i)<=122) c1.at(i)-=87;
+        }
+        for(i = 0;i < c2.length(); i++){
+            c1.at(i)=c1.at(i)-c2.at(i);
+        }
+        for(i = 0; i < c1.length()-1; i++){
+            if(c1.at(i) < 0){
+                c1.at(i) += n;
+                c1.at(i+1)--;
+            }
+        }
+        for(i = c1.length()-1; i >= 0; i--){
+            if(c1.at(i)>0) break;
+        }
+        c1.erase(i+1,c1.length());
+        for(i = 0; i < c1.length(); i++){
+            if(c1.at(i)>=10) c1.at(i) += 87;
+            if(c1.at(i)<10) c1.at(i) += 48;
+        }
+        reverse(c1.begin(),c1.end());
+        if(j == -1) c1.insert(0,d);
+        return c1;
+    }
+
+    string divide(string num1, string num2)
+    {
+        if(num2.length() == 1 && num2.at(0) == 48) return "error";
+        long int i, j;
+        string c1, c2, d, e;
+        if(judge(num1,num2) == 0) return "1";
+        if(judge(num1,num2) == -1){
             return "0";
         }
-        string s3;
-        bool flag=false;
-        if(s1.length()<s2.length() || (s1.length()==s2.length() && s1<s2)) {
-            std::string s=s1;
-            s1=s2;
-            s2=s;
-            flag=true;
-        } else {
-            s3="";
-        }
-        while(s2.length()<s1.length()) {
-            s2="0" + s2;
-        }
-        int k,down=0;
-        for(int i=s1.length()-1; i>=0; i--) {
-            k=s1[i] -s2[i] +down;
-            if(k<0) {
-                down=-1;
-                k=10+k;
-            } else {
-                down=0;
+        c1 = dezero(num1);
+        c2 = dezero(num2);
+        d = "";
+        e = "";
+        for(i=0;i<c1.length();i++){
+            j = 0;
+            d = d + c1.at(i);
+            d = dezero(d);
+            while(judge(d,num2)>=0){
+                d = subtraction(d,num2);
+                d = dezero(d);
+                j++;
             }
-            s3=(char)('0' + k) + s3;
+            e = e + "0";
+            e.at(i) = j;
         }
-        k=0;
-        while(s3[k]=='0' ) {
-            k++;
+        for(i = 0; i < e.length(); i++){
+            if(e.at(i) >= 10) e.at(i) += 87;
+            if(e.at(i) < 10) e.at(i) += 48;
         }
-        s3=s3.substr(k);
-        if(flag)
-            s3="-"+s3;
-        return s3;
+        e = dezero(e);
+        return e;
     }
+
+
 };
 
 int main() {
     Solution ojb;
-//    string n1 = "6607231979617165052588803597880259566126991854418003456709172319062888021175159823406078234169218536510561442502580138201931774342510214570237380148767999";
-//    string n2 = "6279842302850704939361248084003880351836382867485577813034830070108471249174447832309638959891547203343854880720276306946036752573467655038196781151389331";
+    string n1 = "10";
+    string n2 = "2";
 
-    string n1 = "35978";
-    string n2 = "8805922";
+//    string n1 = "35978";
+//    string n2 = "8805922";
 
-    string ret = ojb.multiply(n1, n2);
+    string ret = ojb.divide(n1, n2);
+//    string ret = ojb.multiply(n1, n1);
 
     int lenth = ret.length();
     int prev = lenth % 3;
-    for(int i = 0; i < prev; i++){
+//    for(int i = 0; i < prev; i++){
+//        std::cout << ret[i];
+//    }
+//    for(int i = prev; i < ret.length(); i+=3){
+//        std::cout << ',' << ret[i] << ret[i+1] << ret[i+2];
+//    }
+    std::cout << "resulte.size=" << lenth << std::endl;
+    for(int i = 0; i < ret.length(); i++){
         std::cout << ret[i];
     }
-    for(int i = prev; i < ret.length(); i+=3){
-        std::cout << ',' << ret[i] << ret[i+1] << ret[i+2];
-    }
-
 }
+
+//subtraction;multiply
